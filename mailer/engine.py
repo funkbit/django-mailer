@@ -46,7 +46,7 @@ def prioritize():
             break
 
 
-def send_all():
+def send_all(max_messages=None):
     """
     Send all eligible messages in the queue.
     """
@@ -79,6 +79,11 @@ def send_all():
     try:
         connection = None
         for message in prioritize():
+
+            # Some providers, like SendGrid, has a limit on the number of emails per connection.
+            if max_messages is not None and (sent + deferred) > max_messages:
+                break
+
             try:
                 if connection is None:
                     connection = get_connection(backend=EMAIL_BACKEND)
